@@ -54,6 +54,44 @@
 \usepackage{float}
 \usepackage{caption}
 
+% --- Schémas et graphiques ---
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{babel,positioning,arrows.meta,calc}
+\usepackage{xurl}
+
+% Styles communs des schémas
+\tikzset{
+  box/.style={draw, rounded corners=2pt, align=center, font=\footnotesize,
+              minimum height=1cm, inner sep=3pt, fill=white},
+  llm/.style={box, fill=blue!12, draw=blue!60!black},
+  tool/.style={box, fill=green!10, draw=green!45!black},
+  human/.style={box, fill=orange!15, draw=orange!70!black},
+  net/.style={box, fill=gray!15, draw=gray!70!black},
+  ex/.style={font=\scriptsize\itshape, align=center, text=black!70},
+  lab/.style={font=\scriptsize, align=center},
+  arr/.style={-{Stealth[length=2.2mm]}, thick},
+  arr2/.style={{Stealth[length=2.2mm]}-{Stealth[length=2.2mm]}, thick},
+  legbox/.style={draw, minimum width=0.35cm, minimum height=0.22cm, inner sep=0pt},
+}
+
+% Style des graphiques en barres
+\pgfplotsset{
+  barres/.style={
+    xbar, xmin=0, xmax=100, scale only axis,
+    yticklabel style={align=right, text width=2.5cm, font=\scriptsize},
+    ytick=data, y dir=reverse, enlarge y limits=0.18, bar width=8pt,
+    nodes near coords, nodes near coords align={horizontal},
+    every node near coord/.append style={font=\scriptsize,
+      /pgf/number format/.cd, fixed, fixed zerofill, precision=1, use comma},
+    xlabel={Réponses jugées utiles (\%)},
+    label style={font=\scriptsize}, tick label style={font=\scriptsize},
+    title style={font=\small\bfseries},
+    axis x line*=bottom, axis y line*=left, xtick={0,25,50,75,100},
+  }
+}
+
 % --- Code source ---
 \usepackage{listings}
 \lstset{basicstyle=\ttfamily\small, breaklines=true, frame=single, numbers=left}
