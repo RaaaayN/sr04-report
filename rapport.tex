@@ -1,0 +1,95 @@
+\documentclass[a4paper,12pt]{report}
+
+% --- Langue et encodage ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% --- Mise en page ---
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\nouppercase{\leftmark}}
+\fancyfoot[C]{\thepage}
+
+% --- Maths, figures, tableaux ---
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{caption}
+
+% --- Code source ---
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small, breaklines=true, frame=single, numbers=left}
+
+% --- Liens ---
+\usepackage[hidelinks]{hyperref}
+
+% --- Bibliographie ---
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\addbibresource{references.bib}
+
+% --- Informations ---
+\title{Titre du rapport}
+\author{Rayan Barreddine}
+\date{\today}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{3cm}
+    {\Huge\bfseries Titre du rapport\par}
+    \vspace{1cm}
+    {\Large Sous-titre éventuel\par}
+    \vspace{3cm}
+    {\large Rayan Barreddine\par}
+    \vspace{1cm}
+    {\large UTC -- GI05 -- SR04\par}
+    \vfill
+    {\large \today\par}
+\end{titlepage}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\chapter{Introduction}
+Rédigez ici l'introduction du rapport.
+
+\chapter{Développement}
+\section{Première section}
+Texte de la section. Référence bibliographique : \cite{exemple}.
+
+Exemple de formule :
+\begin{equation}
+    E = mc^2
+    \label{eq:einstein}
+\end{equation}
+
+Exemple de tableau :
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lcc}
+        \toprule
+        Colonne A & Colonne B & Colonne C \\
+        \midrule
+        Valeur 1  & 10        & 20 \\
+        Valeur 2  & 30        & 40 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Exemple de tableau}
+    \label{tab:exemple}
+\end{table}
+
+\chapter{Conclusion}
+Rédigez ici la conclusion.
+
+\printbibliography[heading=bibintoc,title={Bibliographie}]
+
+\end{document}

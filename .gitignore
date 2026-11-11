@@ -1,0 +1,22 @@
+# Fichiers auxiliaires LaTeX / latexmk / biber
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.pdf
+*.nav
+*.snm
+*.vrb
+*.idx
+*.ind
+*.ilg
+*.fmt
