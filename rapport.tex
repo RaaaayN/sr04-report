@@ -1,5 +1,18 @@
 \documentclass[a4paper,12pt]{report}
 
+% =============================================================
+%  Informations du rapport (à modifier ici uniquement)
+% =============================================================
+\newcommand{\titreRapport}{Titre du rapport}
+\newcommand{\sousTitre}{Sous-titre éventuel}
+\newcommand{\cours}{SR04}
+\newcommand{\semestre}{Automne 2026}
+\newcommand{\membres}{%
+    Rayan Barreddine \\
+    Prénom Nom \\
+    Prénom Nom \\
+    Prénom Nom}
+
 % --- Langue et encodage ---
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -13,7 +26,25 @@
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\nouppercase{\leftmark}}
+\fancyhead[R]{\cours}
 \fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{%
+    \fancyhf{}%
+    \fancyfoot[C]{\thepage}%
+    \renewcommand{\headrulewidth}{0pt}%
+}
+
+% Couleur UTC (jaune du logo)
+\usepackage{xcolor}
+\definecolor{utcgris}{RGB}{100,100,100}
+\definecolor{utcjaune}{RGB}{251,211,23}
+\usepackage[explicit]{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{utcgris}}
+  {\chaptertitlename\ \thechapter}{10pt}
+  {\titlerule[1.5pt]\vspace{0.3cm}\color{utcgris}\Huge #1}
+  [\vspace{0.5cm}]
 
 % --- Maths, figures, tableaux ---
 \usepackage{amsmath,amssymb}
@@ -34,62 +65,55 @@
 \usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
 \addbibresource{references.bib}
 
-% --- Informations ---
-\title{Titre du rapport}
-\author{Rayan Barreddine}
+% --- Informations PDF ---
+\hypersetup{pdftitle={\titreRapport}, pdfauthor={\membres}}
+\title{\titreRapport}
 \date{\today}
 
 \begin{document}
 
+% =============================================================
+%  Page de garde
+% =============================================================
 \begin{titlepage}
     \centering
-    \vspace*{3cm}
-    {\Huge\bfseries Titre du rapport\par}
-    \vspace{1cm}
-    {\Large Sous-titre éventuel\par}
-    \vspace{3cm}
-    {\large Rayan Barreddine\par}
-    \vspace{1cm}
-    {\large UTC -- GI05 -- SR04\par}
+    \includegraphics[width=0.55\textwidth]{logo_utc}\par
+    \vspace{1.5cm}
+    {\large Université de technologie de Compiègne\par}
+    {\large \cours\ -- \semestre\par}
+    \vspace{2.5cm}
+    {\Huge\bfseries\color{utcgris} \titreRapport\par}
+    \vspace{0.6cm}
+    {\rule{0.6\textwidth}{2pt}\par}
+    \vspace{0.6cm}
+    {\Large \sousTitre\par}
     \vfill
+    {\large\bfseries Réalisé par :\par}
+    \vspace{0.3cm}
+    {\large \membres\par}
+    \vspace{1.5cm}
     {\large \today\par}
 \end{titlepage}
 
+% =============================================================
+%  Sommaire
+% =============================================================
 \tableofcontents
 \listoffigures
 \listoftables
 
-\chapter{Introduction}
-Rédigez ici l'introduction du rapport.
+% =============================================================
+%  Contenu : un fichier par partie, chacun le sien
+% =============================================================
+\input{chapitres/01-introduction}
+\input{chapitres/02-partie-rayan}
+\input{chapitres/03-partie-membre-2}
+\input{chapitres/04-partie-membre-3}
+\input{chapitres/05-conclusion}
 
-\chapter{Développement}
-\section{Première section}
-Texte de la section. Référence bibliographique : \cite{exemple}.
-
-Exemple de formule :
-\begin{equation}
-    E = mc^2
-    \label{eq:einstein}
-\end{equation}
-
-Exemple de tableau :
-\begin{table}[H]
-    \centering
-    \begin{tabular}{lcc}
-        \toprule
-        Colonne A & Colonne B & Colonne C \\
-        \midrule
-        Valeur 1  & 10        & 20 \\
-        Valeur 2  & 30        & 40 \\
-        \bottomrule
-    \end{tabular}
-    \caption{Exemple de tableau}
-    \label{tab:exemple}
-\end{table}
-
-\chapter{Conclusion}
-Rédigez ici la conclusion.
-
+% =============================================================
+%  Bibliographie
+% =============================================================
 \printbibliography[heading=bibintoc,title={Bibliographie}]
 
 \end{document}
