@@ -1,13 +1,63 @@
 \chapter{Des LLM aux agents et aux systèmes multi-agents}
 \label{chap:partie-3}
 
-\section{Plan}
-\begin{itemize}
-    \item Principe des systèmes multi-agents
-    \item Définition d'un agent, spécialisation, parallélisme
-    \item Architecture hybride (centralisée ou décentralisée)
-    \item Tolérance à la complexité
-\end{itemize}
+\section{Du LLM assistant à l’agent réseau}
+La partie précédente a montré que les LLM peuvent proposer des configurations, des hypothèses de diagnostic ou des plans d'intervention. Utilisés seuls, ils restent cependant limités: ils ne connaissent pas l'état réel de l'infrastructure, comme ses tables de routage ou l'état de ses interfaces, et ne peuvent pas agir sur elle [2,3]. La possibilité d'appeler des outils externes, évoquée en partie 3, permet de dépasser cette limite.
+Cette évolution amène à distinguer une architecture basée sur un LLM d'un système agentique fondé sur un LLM. Dans le premier cas, le modèle répond à une sollicitation et laisse généralement à l'administrateur (humain) le soin de vérifier et d'exécuter les actions proposées. Dans le second cas, le modèle s'inscrit dans un système qui lui permet de poursuivre un objectif, de décomposer un problème en étapes, d'utiliser des outils et d'exploiter les résultats obtenus pour poursuivre le travail [1].
+Un agent est défini comme un système capable de percevoir ou d'obtenir des informations sur son environnement, de prendre des décisions en fonction d'un objectif et d'agir sur cet environnement afin de l'atteindre, avec un degré d'autonomie variable [1,7]. Ainsi, un agent réseau fondé sur un LLM pourrait, par exemple, être chargé d'aider au diagnostic d'une perte de connectivité. Au lieu de se limiter à proposer les causes possibles, il pourrait consulter les journaux, interroger les métriques ou examiner les informations de configuration. Les résultats obtenus pourraient ensuite alimenter son raisonnement et affiner son diagnostic. Cet exemple servira de fil conducteur dans la suite de cette partie.
 
-\section{Texte}
-À rédiger.
+
+\section{Les agents dans une boucle d’administration réseau}
+L'intégration d'un LLM dans un agent ne suffit pas, à elle seule, à garantir une administration autonome. Il faut également organiser les interactions entre le système, les outils d'administration et l'infrastructure réseau. La boucle fermée présentée en partie 2 (observation de l'état du réseau, analyse, décision, exécution et vérification du résultat) fournit un cadre pour décrire ce fonctionnement. Elle peut être formalisée par le modèle MAPE-K (Monitor, Analyze, Plan, Execute – Knowledge) [4], issu des travaux sur l'informatique autonomique. Ce modèle décrit une boucle de gestion dans laquelle le système surveille son environnement, analyse les écarts constatés, planifie une réponse et l'exécute en s'appuyant sur une base de connaissances partagée. La vérification correspond alors au retour à la phase de surveillance.
+À partir des informations collectées et de l'objectif qui lui est confié, l'agent peut chercher à identifier un problème et à déterminer les actions envisageables. Il peut ensuite mobiliser des outils pour compléter son analyse ou mettre en œuvre une action autorisée. Ce fonctionnement correspond au cadre ReAct (Reasoning and Acting) [5], dans lequel le modèle alterne des étapes de raisonnement, des actions sur son environnement (appels d'outils, commandes) et l'exploitation des observations obtenues, chacune orientant l'étape suivante. Enfin, les résultats de cette action doivent être examinés afin de vérifier si l'objectif a été atteint. Si ce n'est pas le cas, le système peut devoir réviser son diagnostic ou proposer une nouvelle action [2,3]. MAPE-K décrit ainsi l'architecture globale de la boucle, tandis que ReAct décrit la manière dont le LLM la parcourt.
+Dans le cas d'une perte de connectivité entre un poste et un serveur, cette boucle pourrait se traduire par les opérations suivantes:
+\begin{enumerate}
+    \item \textbf{Observation}: collecte des informations disponibles sur la connectivité, les journaux et l'état des interfaces.
+    \item \textbf{Analyse}: recherche de causes possibles, telles qu'une interface indisponible, une erreur de configuration ou un problème de routage.
+    \item \textbf{Décision}: sélection d'une vérification complémentaire ou proposition d'une correction.
+    \item \textbf{Action}: exécution d'une commande de diagnostic ou, si elle est autorisée, application d'une modification. Selon le niveau d'autonomie accordé à l'agent, l'application d'une modification peut être soumise à la validation d'un administrateur.
+    \item \textbf{Vérification}: contrôle du rétablissement de la connectivité et recherche d'éventuels effets indésirables.
+\end{enumerate}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{boucle_admin_avec_LLM}
+    \caption{Boucle d'administration d'un agent réseau fondé sur un LLM}
+    \label{fig:admin-LLM}
+\end{figure}
+
+La boucle de contrôle peut constituer ainsi un élément important de la transition entre assistance et automatisation. Néanmoins, elle ne garantit pas à elle seule la fiabilité du système : les données peuvent être incomplètes, le diagnostic erroné ou encore l'action inadaptée. Des mécanismes de validation, de limitation des droits et de retour à un état sûr restent donc nécessaires, en particulier lorsque les actions envisagées touchent à la configuration ou au routage (voir partie 5). 
+
+\section{Les systèmes multi-agents pour l'administration réseau}
+Lorsque des tâches d'administration deviennent plus complexes, une autre approche consiste à répartir le travail entre plusieurs agents spécialisés. Selon la définition retenue dans le cours IA04, un système multi-agents (SMA) est un système computationnel constitué de plusieurs agents autonomes (au moins trois) qui interagissent dans un environnement commun afin de réaliser leurs objectifs individuels et/ou un objectif collectif. Les agents peuvent être spécialisés dans différentes tâches et coordonner leurs actions par communication, coopération ou négociation [7].
+Dans le contexte applicatif des réseaux, cette organisation peut permettre de séparer différentes fonctions. Un agent pourrait être chargé de la supervision et de la détection d'anomalies, un autre du diagnostic, un troisième de l'élaboration d'une solution et un dernier de sa validation. La répartition des responsabilités pourrait faciliter le traitement des problèmes nécessitant plusieurs expertises, tout en permettant de contrôler plus explicitement certaines étapes du processus [1]. 
+Reprenons la perte de connectivité entre un poste et un serveur. Dans une organisation où un agent coordinateur reçoit l'alerte et répartit le travail, le traitement pourrait être réparti de la manière suivante:
+\begin{itemize}
+    \item \textbf{l'agent de supervision} détecte la perte de connectivité, par exemple à partir de tests de joignabilité ou d'une alerte de l'outil de supervision, et transmet les éléments observés (heure, équipements concernés, journaux associés);
+    \item \textbf{l'agent de diagnostic} interroge les équipements en lecture seule (état des interfaces, table de routage, journaux) et identifie par exemple que la route vers le sous-réseau du serveur a disparu après une modification récente de configuration;
+    \item \textbf{l'agent de correction} propose la modification à appliquer, par exemple rétablir la route ou revenir à la configuration précédente, accompagnée d'une procédure de retour arrière;
+    \item \textbf{l'agent de validation} contrôle cette proposition avant son application, par exemple à l'aide d'un outil de vérification de configuration ou d'une copie virtuelle du réseau, et s'assure qu'elle ne crée pas de nouveau problème.
+\end{itemize}
+Le coordinateur consolide ensuite les résultats et, selon les droits qui lui sont accordés, applique la correction ou la soumet à un administrateur. L'agent de supervision vérifie enfin le rétablissement de la connectivité. On retrouve ainsi la boucle décrite en section b, mais répartie entre plusieurs agents.
+Cet exemple montre aussi les fragilités d'une telle organisation. Si l'agent de diagnostic attribue à tort la panne au routage alors qu'une interface a simplement été désactivée, les agents de correction et de validation travailleront sur une hypothèse fausse. Pour limiter ce risque, l'agent de validation doit rester indépendant de celui qui propose la solution, et les agents ont intérêt à partager les observations brutes, et pas uniquement leurs conclusions.
+La coopération entre agents soulève plus généralement des questions d'organisation. Les agents doivent échanger des informations suffisamment fiables, partager une représentation cohérente de la situation et gérer les éventuels désaccords entre leurs propositions. Il faut également déterminer comment les décisions sont prises et comment les actions sont autorisées.
+Plusieurs formes d'architecture peuvent être envisagées [1]. Dans une organisation centralisée, comme dans l'exemple précédent, un agent coordinateur répartit les tâches et consolide les résultats. Dans une organisation décentralisée, les agents disposent d'une plus grande autonomie et coordonnent leurs actions par des échanges entre eux. Des approches hybrides peuvent combiner ces deux principes.
+L'intérêt d'un SMA ne doit toutefois pas être considéré comme systématique dans l'administration réseau. La spécialisation et la parallélisation peuvent améliorer la modularité ou permettre de traiter plusieurs aspects d'un incident en simultané. Cependant, les échanges entre agents ajoutent des contraintes de communication et de coordination, tandis que les erreurs peuvent se propager d'un agent à un autre. Ce risque est d'autant plus important qu'un agent peut être volontairement trompé, comme le détaille la partie 5.
+
+
+\section{Vers une administration plus autonome}
+Les agents et systèmes multi-agents ouvrent des perspectives pour dépasser une administration reposant exclusivement sur des interactions humaines. Ils peuvent contribuer à enchaîner des opérations de supervision, de diagnostic et de correction, voire adapter certaines actions à l'évolution de l'état du réseau. Il faut néanmoins distinguer la capacité à exécuter automatiquement une séquence de tâches de la capacité à atteindre et à maintenir un objectif opérationnel de manière fiable. 
+Cette distinction rejoint l'Intent-Based Networking présenté en partie 2 [9]. La partie 3 a montré que les LLM peuvent intervenir dans la traduction d'une intention en configuration. Les agents permettent d'aller plus loin en prenant en charge l'ensemble du cycle de vie de cette intention.
+Reprenons l'intention présentée en partie 3 : “interdire l'accès SSH aux équipements depuis le Wi-Fi invités”. Un système agentique pourrait :
+\begin{enumerate}
+    \item interpréter l'intention et lever ses ambiguïtés (quels équipements, quel réseau invité), en interrogeant l'opérateur si nécessaire ;
+    \item la traduire en listes de contrôle d'accès sur les interfaces concernées ;
+    \item vérifier la configuration obtenue avant son déploiement ;
+    \item la déployer, si les droits accordés à l'agent le permettent ;
+    \item contrôler en continu que l'intention reste respectée, par exemple en testant régulièrement qu'une connexion SSH depuis le réseau invité est bien refusée ;
+    \item corriger la situation si une modification ultérieure, comme l'ajout d'un nouvel équipement ou la suppression d'une règle, vient violer l'intention.
+\end{enumerate}
+Les étapes 5 et 6 montrent ce qui distingue un système qui exécute une tâche d'un système qui maintient un objectif : l'intention n'est pas appliquée une seule fois, elle est surveillée dans la durée.
+L'IBN et les architectures agentiques répondent néanmoins à des questions distinctes. L'IBN porte principalement sur la manière d'exprimer et de satisfaire des objectifs de gestion, tandis que les agents constituent une manière possible d'organiser les mécanismes de décision et d'action. Ces approches peuvent donc être complémentaires sans que l'une implique nécessairement l'autre.
+Ces différentes architectures peuvent être situées sur l'échelle des niveaux d'autonomie définie par le TM Forum [16], qui va d'une gestion entièrement manuelle (niveau 0) à un réseau entièrement autonome (niveau 5), et sur les formes de contrôle humain présentées en partie 5. Un LLM utilisé comme assistant, qui propose sans agir, laisse l'humain décider et exécuter : il correspond aux premiers niveaux. Un agent qui diagnostique seul mais soumet ses corrections à validation (human-in-the-loop) relève d'une autonomie partielle. Un agent ou un SMA qui applique lui-même ses corrections sous la surveillance d'un administrateur (human-on-the-loop) se rapproche des niveaux supérieurs, à condition que ses vérifications soient fiables. L'autonomie totale supposerait un fonctionnement sans supervision humaine dans toutes les situations.
+Le passage à une administration plus autonome suppose cependant de maîtriser la fiabilité des diagnostics, la sécurité des outils et la vérification des effets sur l'infrastructure, puisqu'une action erronée peut interrompre des services ou affecter plusieurs équipements. Les mécanismes de garantie nécessaires (limitation des droits, contrôles préalables, journalisation, retour arrière et maintien d'un contrôle humain) sont détaillés dans la partie suivante. 
+Ainsi, les LLM, les agents et les systèmes multi-agents constituent des pistes pour faire évoluer l'administration réseau vers des processus plus automatisés. Toutefois, leur intérêt ne se mesure pas uniquement au nombre de tâches qu'ils peuvent réaliser sans intervention humaine. Il dépend également de leur capacité à respecter les contraintes du réseau, à vérifier les conséquences de leurs actions et à maintenir un niveau de fiabilité compatible avec les exigences opérationnelles. 
